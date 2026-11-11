@@ -39,6 +39,7 @@ const MIME = {
   '.txt': 'text/plain; charset=utf-8',
   '.svg': 'image/svg+xml',
   '.webp': 'image/webp',
+  '.mp4': 'video/mp4',
   '.jpg': 'image/jpeg',
   '.png': 'image/png',
   '.ico': 'image/x-icon',
@@ -174,9 +175,25 @@ async function servirArquivo(req, res, pathname) {
     'Content-Type': MIME[ext] || 'application/octet-stream',
     'ETag': etag,
     /* imagens ficam 30 dias em cache; o resto é revalidado por ETag, então edições aparecem na hora */
-    'Cache-Control': rel.startsWith('/img/') ? 'public, max-age=2592000' : 'no-cache',
+    'Cache-Control': rel.startsWith('/img/') || rel.startsWith('/video/') ? 'public, max-age=2592000' : 'no-cache',
   };
   if (req.headers['if-none-match'] === etag) { res.writeHead(304, cabecalhos); return res.end(); }
+
+  /* pedidos parciais: navegadores (o Safari em especial) buscam vídeo em pedaços */
+  const faixa = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || '');
+  if (faixa && !COMPRESSIVEL.has(ext) && (faixa[1] || faixa[2])) {
+    let inicio = faixa[1] ? Number(faixa[1]) : Math.max(0, info.size - Number(faixa[2]));
+    let fim = faixa[1] && faixa[2] ? Math.min(Number(faixa[2]), info.size - 1) : info.size - 1;
+    if (inicio > fim || inicio >= info.size) {
+      res.writeHead(416, { ...cabecalhos, 'Content-Range': `bytes */${info.size}` });
+      return res.end();
+    }
+    res.writeHead(206, { ...cabecalhos, 'Accept-Ranges': 'bytes', 'Content-Range': `bytes ${inicio}-${fim}/${info.size}`, 'Content-Length': fim - inicio + 1 });
+    if (req.method === 'HEAD') return res.end();
+    const pedaco = fs.createReadStream(arquivo, { start: inicio, end: fim });
+    pedaco.on('error', () => res.destroy());
+    return pedaco.pipe(res);
+  }
 
   const aceita = req.headers['accept-encoding'] || '';
   const fluxo = fs.createReadStream(arquivo);
@@ -191,7 +208,7 @@ async function servirArquivo(req, res, pathname) {
     if (req.method === 'HEAD') return res.end();
     return fluxo.pipe(zlib.createGzip()).pipe(res);
   }
-  res.writeHead(200, { ...cabecalhos, 'Content-Length': info.size });
+  res.writeHead(200, { ...cabecalhos, 'Accept-Ranges': 'bytes', 'Content-Length': info.size });
   if (req.method === 'HEAD') { fluxo.destroy(); return res.end(); }
   return fluxo.pipe(res);
 }

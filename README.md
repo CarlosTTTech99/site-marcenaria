@@ -15,6 +15,7 @@ Abre em http://localhost:3000. Variáveis opcionais: `PORT` e `ADMIN_TOKEN`.
 - `public/index.html` — página (conteúdo, SEO, dados estruturados JSON-LD)
 - `public/css/styles.css` — design system (tokens no `:root`) e layout
 - `public/js/main.js` — navegação, animações de entrada, ampliar fotos, formulário
+- `public/js/hero.js` — vídeo de fundo da hero (`public/video/`): horizontal em loop na tela deitada, vertical tocando uma vez na tela em pé. Não carrega com "reduzir movimento" nem com economia de dados
 - `public/js/parallax.js` — parallax da hero e rolagem suave (GSAP ScrollTrigger + Lenis, em `public/js/vendor/`). Desligado para quem usa "reduzir movimento" no sistema; para pré-visualizar mesmo assim, abra com `?animacao=on`
 - `public/js/carousel.js` — carrossel de projetos em perspectiva (faixa infinita, arrasto, setas, giro pela velocidade). Sem GSAP ou com "reduzir movimento", vira rolagem horizontal nativa com encaixe
 - `public/img/` — fotos reais da empresa otimizadas em WebP

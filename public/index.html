@@ -133,11 +133,12 @@
 
 <!-- HERO -->
 <section class="hero" id="topo" data-parallax>
-  <div class="hero__media" data-parallax-layer="1">
+  <div class="hero__media" data-parallax-layer="1" data-video="/video/hero-desktop.mp4" data-video-portrait="/video/hero-celular.mp4">
     <img src="/img/cozinha-planejada-sorocaba.webp" srcset="/img/cozinha-planejada-sorocaba-960.webp 960w, /img/cozinha-planejada-sorocaba-1280.webp 1280w, /img/cozinha-planejada-sorocaba-1600.webp 1600w" sizes="(max-width: 820px) 260vw, 125vw" width="1600" height="1156" alt="Cozinha planejada sob medida com armários em tom fendi, torre quente e cristaleira iluminada — Marcenaria Trajano, Sorocaba" fetchpriority="high">
   </div>
   <div class="hero__content" data-parallax-layer="2">
-    <p class="hero__brand"><span class="hero__kicker">Marcenaria</span> <span class="hero__wordmark" role="img" aria-label="Trajano"><span>T</span><span>R</span><span>A</span><span>J</span><span>A</span><span>N</span><span>O</span></span></p>
+    <p class="hero__brand"><span class="hero__kicker">Marcenaria</span> <span class="hero__wordmark" role="img" aria-label="Trajano"><span>T</span><span>R</span><span>A</span><span>J</span><span>A</span><span>N</span><span>O</span></span>
+      <svg class="hero__underline" viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path d="M 0,10 Q 75,0 150,10 Q 225,20 300,10" pathLength="1"/></svg></p>
     <a class="btn btn--dark hero__btn" href="#contato">Pedir orçamento <svg viewBox="0 0 24 8" aria-hidden="true"><path d="M0 4h22M19 1l3 3-3 3"/></svg></a>
   </div>
   <div class="hero__fade" data-parallax-fade aria-hidden="true"></div>
@@ -448,6 +449,7 @@
 <script src="/js/vendor/ScrollTrigger.min.js" defer></script>
 <script src="/js/vendor/lenis.min.js" defer></script>
 <script src="/js/main.js" defer></script>
+<script src="/js/hero.js" defer></script>
 <script src="/js/parallax.js" defer></script>
 <script src="/js/carousel.js" defer></script>
 </body>
