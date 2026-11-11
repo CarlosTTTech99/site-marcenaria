@@ -1,0 +1,9 @@
+{
+  "name": "marcenaria-trajano-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Site da Marcenaria Trajano — móveis planejados sob medida em Sorocaba - SP",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" }
+}
