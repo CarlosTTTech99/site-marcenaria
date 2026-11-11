@@ -142,13 +142,13 @@ strong { font-weight: 600; }
   border-radius: var(--r-lg); overflow: hidden;
   display: grid; place-items: center; text-align: center; color: var(--cream);
 }
-.hero__media { position: absolute; inset: 0; z-index: -1; }
+.hero__media { position: absolute; inset: -6% 0 0 0; z-index: -2; will-change: transform; }
 .hero__media img {
   width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%;
   animation: hero-settle 1800ms var(--ease-out) both;
 }
-.hero__media::after {
-  content: ""; position: absolute; inset: 0;
+.hero::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background:
     linear-gradient(180deg, rgba(48, 36, 27, 0.55) 0%, rgba(48, 36, 27, 0.18) 30%, rgba(48, 36, 27, 0.3) 60%, rgba(48, 36, 27, 0.62) 100%),
     rgba(94, 72, 52, 0.22);
@@ -172,6 +172,12 @@ strong { font-weight: 600; }
 .hero__wordmark span:nth-child(3) { --n: 2; } .hero__wordmark span:nth-child(4) { --n: 3; }
 .hero__wordmark span:nth-child(5) { --n: 4; } .hero__wordmark span:nth-child(6) { --n: 5; }
 .hero__wordmark span:nth-child(7) { --n: 6; }
+.hero__content { will-change: transform; }
+/* base da hero que se dissolve na cor da página conforme a rolagem (controlada pelo parallax.js) */
+.hero__fade {
+  position: absolute; inset: auto 0 0 0; height: 60%; z-index: 1; opacity: 0; pointer-events: none;
+  background: linear-gradient(to top, var(--bg) 0%, rgba(233, 226, 216, 0.72) 32%, rgba(233, 226, 216, 0) 100%);
+}
 .hero__btn { margin-top: clamp(8px, 2vw, 28px); animation: rise 900ms 800ms var(--ease-out) both; }
 
 @keyframes hero-settle { from { transform: scale(1.07); } to { transform: scale(1); } }
@@ -324,6 +330,13 @@ strong { font-weight: 600; }
 .zoom__close { display: block; margin: 12px auto 0; padding: 10px 20px; border: 1px solid rgba(247, 242, 235, 0.5); border-radius: var(--r-pill); background: transparent; color: var(--cream); font: 500 var(--t-sm) var(--text); cursor: pointer; }
 @keyframes zoom-in { from { opacity: 0; transform: scale(0.96); } }
 @keyframes fade { from { opacity: 0; } }
+
+/* ---------- rolagem suave (Lenis) ---------- */
+html.lenis, html.lenis body { height: auto; }
+html.lenis { scroll-behavior: auto; }
+.lenis:not(.lenis-autoToggle).lenis-stopped { overflow: clip; }
+.lenis [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-smooth iframe { pointer-events: none; }
 
 /* ---------- revelar ao rolar ---------- */
 .js .reveal { opacity: 0; transform: translateY(14px); transition: opacity 700ms var(--ease-out), transform 700ms var(--ease-out); transition-delay: calc(var(--i, 0) * 60ms); }
