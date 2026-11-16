@@ -143,10 +143,58 @@ strong { font-weight: 600; }
   display: grid; place-items: center; text-align: center; color: var(--cream);
 }
 .hero__media { position: absolute; inset: -6% 0 0 0; z-index: -2; will-change: transform; }
-.hero__media img {
-  width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%;
-  animation: hero-settle 1800ms var(--ease-out) both;
+/* a aproximação inicial fica nos slides: no .hero__media ela travaria o transform do parallax */
+.hero__slides { animation: hero-settle 1800ms var(--ease-out) both; }
+/* carrossel de vídeos (hero.js): cada slide entra pela lateral, o vídeo aparece por cima da capa */
+.hero__slides { position: absolute; inset: 0; overflow: hidden; }
+.hero__slide {
+  position: absolute; inset: 0; visibility: hidden;
+  transition: transform 900ms var(--ease-in-out);
 }
+.hero__slide.is-active, .hero__slide.is-leaving { visibility: visible; }
+.hero__capa, .hero__slide picture, .hero__video {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%;
+}
+/* vídeo em pé numa tela deitada: inteiro no centro, sobre um fundo borrado dele mesmo */
+.hero__fundo {
+  display: none; position: absolute; inset: -8%; width: 116%; height: 116%; object-fit: cover;
+  filter: blur(14px) brightness(0.72) saturate(0.9);
+}
+.hero__slide.is-contain .hero__fundo { display: block; }
+.hero__slide.is-contain .hero__capa, .hero__slide.is-contain .hero__video { object-fit: contain; object-position: 50% 50%; }
+
+/* controles: anterior, pontos, próximo e pausar */
+.hero__controls {
+  position: absolute; left: 50%; bottom: clamp(16px, 3vw, 28px); z-index: 2; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 10px;
+}
+.hero__ctl {
+  display: grid; place-items: center; width: 40px; height: 40px; padding: 0; flex: none;
+  border: 1px solid rgba(247, 242, 235, 0.45); border-radius: 50%;
+  background: rgba(40, 30, 22, 0.32); color: var(--cream); cursor: pointer;
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  transition: transform 140ms var(--ease-out), background-color 200ms ease;
+}
+.hero__ctl svg { width: 18px; height: 8px; fill: none; stroke: currentColor; stroke-width: 1.3; }
+.hero__ctl--prev svg { transform: scaleX(-1); }
+.hero__ctl--pause svg { width: 16px; height: 16px; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.hero__ctl--pause .icone-play { fill: currentColor; stroke: none; display: none; }
+.hero__ctl--pause[aria-pressed="true"] .icone-play { display: block; }
+.hero__ctl--pause[aria-pressed="true"] .icone-pausa { display: none; }
+.hero__ctl:active { transform: scale(0.94); }
+.hero__ctl:focus-visible, .hero__dot:focus-visible { outline: 2px solid var(--cream); outline-offset: 3px; }
+@media (hover: hover) and (pointer: fine) {
+  .hero__ctl:hover { background: rgba(40, 30, 22, 0.6); }
+}
+.hero__dots { display: flex; gap: 6px; padding: 0 4px; }
+.hero__dot {
+  width: 8px; height: 8px; padding: 0; border: 0; border-radius: 999px; cursor: pointer;
+  background: rgba(247, 242, 235, 0.5); transition: width 300ms var(--ease-out), background-color 200ms ease;
+}
+.hero__dot[aria-current="true"] { width: 24px; background: var(--cream); }
+/* área de toque maior para os pontos, sem mudar o desenho */
+.hero__dot { position: relative; }
+.hero__dot::after { content: ""; position: absolute; inset: -12px -4px; }
 .hero::before {
   content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background:
@@ -190,11 +238,8 @@ strong { font-weight: 600; }
 /* na hero o letreiro animado já mostra o nome; o nome pequeno do menu só volta ao rolar */
 .nav__brand { transition: opacity 300ms ease, visibility 300ms; }
 .nav:not(.is-stuck) .nav__brand { opacity: 0; visibility: hidden; }
-/* vídeo de fundo: entra por cima da foto quando começa a tocar (hero.js) */
-.hero__video {
-  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%;
-  opacity: 0; transition: opacity 700ms ease; pointer-events: none;
-}
+/* vídeo de cada slide: entra por cima da capa quando começa a tocar (hero.js) */
+.hero__video { opacity: 0; transition: opacity 700ms ease; pointer-events: none; }
 .hero__video.is-on { opacity: 1; }
 /* sublinhado em onda sob o letreiro: desenha-se da esquerda para a direita depois das letras */
 .hero__wordmark { transition: transform 300ms var(--ease-out); }
@@ -474,7 +519,8 @@ html.lenis { scroll-behavior: auto; }
 /* ---------- preferências de acessibilidade ---------- */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .hero__media img, .hero__wordmark span, .hero__kicker, .hero__btn, .hero__contato, .hero__underline path { animation: fade 400ms ease both; }
+  .hero__media img, .hero__wordmark span, .hero__kicker, .hero__btn, .hero__contato, .hero__underline path, .hero__slides { animation: fade 400ms ease both; }
+  .hero__slide { transition: none; }
   .hero__wordmark, .hero__underline path { transition: none; }
   .js .reveal { transform: none; transition: opacity 300ms ease; transition-delay: 0ms; }
   .cat img, .slide__media img, .btn svg { transition: none; }
