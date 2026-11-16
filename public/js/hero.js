@@ -24,6 +24,7 @@
     video.muted = true;
     video.playsInline = true;
     video.loop = true;
+    video.autoplay = true; /* começa mesmo se o observador de visibilidade demorar a avisar */
     video.preload = 'auto';
     video.disablePictureInPicture = true;
     video.tabIndex = -1;
