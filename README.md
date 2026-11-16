@@ -29,6 +29,21 @@ Abre em http://localhost:3000. Variáveis opcionais: `PORT` e `ADMIN_TOKEN`.
 - `GET /api/leads` — lista os pedidos. Só funciona com `ADMIN_TOKEN` definido, enviando `Authorization: Bearer <token>`.
 - `GET /healthz` — verificação de saúde.
 
+## Vercel
+
+No ar em https://marcenaria-trajano.vercel.app (projeto `marcenaria-trajano`, ligado a este repositório: cada push na `main` publica em produção).
+
+- `vercel.json` publica a pasta `public/` com os mesmos cabeçalhos de segurança e cache do `server.js`.
+- `api/orcamento.js` é a função do formulário. As regras ficam em `lib/orcamento.js`, compartilhadas com o `server.js`.
+- Na Vercel os pedidos não são gravados em arquivo: aparecem em Runtime Logs, e o cliente segue para o WhatsApp com a mensagem pronta.
+- `server.js` não roda na Vercel; continua servindo para rodar localmente ou em outra hospedagem Node.
+
+Publicar manualmente:
+
+```bash
+vercel deploy --prod
+```
+
 ## Antes de publicar
 
 1. Trocar `https://www.marcenariatrajano.com.br` pelo domínio real em `index.html`, `robots.txt`, `sitemap.xml` e `llms.txt`.

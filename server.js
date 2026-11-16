@@ -19,16 +19,8 @@ const ADMIN_TOKEN = process.env.ADMIN_TOKEN || '';
 const PUBLIC = path.join(__dirname, 'public');
 const DATA = path.join(__dirname, 'data');
 const LEADS = path.join(DATA, 'leads.jsonl');
-const WHATSAPP = '5515981421923';
-
-const AMBIENTES = new Set([
-  'Cozinha planejada',
-  'Guarda-roupa ou closet',
-  'Painel de TV / sala',
-  'Dormitório / home office',
-  'Móveis corporativos',
-  'Outro ambiente',
-]);
+/* regras do pedido compartilhadas com a função da Vercel (api/orcamento.js) */
+const { validarPedido, criarLimitador } = require('./lib/orcamento');
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -84,24 +76,8 @@ function lerCorpo(req, limite = 10_000) {
   });
 }
 
-const limpar = (v, max) => String(v ?? '').replace(/[\u0000-\u0008\u000B-\u001F\u007F]/g, '').trim().slice(0, max);
-
 /* limite simples por IP: 5 pedidos a cada 10 minutos */
-const JANELA = 10 * 60_000;
-const MAXIMO = 5;
-const acessos = new Map();
-function excedeuLimite(ip) {
-  const agora = Date.now();
-  const lista = (acessos.get(ip) || []).filter((t) => agora - t < JANELA);
-  if (lista.length >= MAXIMO) { acessos.set(ip, lista); return true; }
-  lista.push(agora);
-  acessos.set(ip, lista);
-  return false;
-}
-setInterval(() => {
-  const agora = Date.now();
-  for (const [ip, lista] of acessos) if (lista.every((t) => agora - t >= JANELA)) acessos.delete(ip);
-}, JANELA).unref();
+const excedeuLimite = criarLimitador();
 
 /* ---------- API ---------- */
 async function criarOrcamento(req, res) {
@@ -117,21 +93,13 @@ async function criarOrcamento(req, res) {
     return json(res, e.status || 400, { ok: false, erro: 'Não foi possível ler o pedido.' });
   }
 
-  /* campo-isca: robôs preenchem, pessoas não veem */
-  if (limpar(dados.site, 200)) return json(res, 200, { ok: true });
+  if (!dados || typeof dados !== 'object') return json(res, 400, { ok: false, erro: 'Não foi possível ler o pedido.' });
 
-  const nome = limpar(dados.nome, 80);
-  const telefone = limpar(dados.telefone, 20).replace(/\D/g, '');
-  const ambiente = limpar(dados.ambiente, 40);
-  const mensagem = limpar(dados.mensagem, 1000);
+  const r = validarPedido(dados);
+  if (r.robo) return json(res, 200, { ok: true });
+  if (r.erros) return json(res, 422, { ok: false, erro: 'Confira os campos destacados.', campos: r.erros });
 
-  const erros = {};
-  if (nome.length < 2) erros.nome = 'Informe seu nome.';
-  if (telefone.length < 10 || telefone.length > 11) erros.telefone = 'Informe o WhatsApp com DDD.';
-  if (!AMBIENTES.has(ambiente)) erros.ambiente = 'Selecione o ambiente.';
-  if (Object.keys(erros).length) return json(res, 422, { ok: false, erro: 'Confira os campos destacados.', campos: erros });
-
-  const lead = { id: crypto.randomUUID(), recebidoEm: new Date().toISOString(), nome, telefone, ambiente, mensagem };
+  const lead = { id: crypto.randomUUID(), recebidoEm: new Date().toISOString(), ...r.pedido };
   try {
     await fsp.mkdir(DATA, { recursive: true });
     await fsp.appendFile(LEADS, JSON.stringify(lead) + '\n', 'utf8');
@@ -139,11 +107,9 @@ async function criarOrcamento(req, res) {
     console.error('[orcamento] falha ao gravar o pedido:', e.message);
     return json(res, 500, { ok: false, erro: 'Erro ao registrar o pedido.' });
   }
-  console.log(`[orcamento] ${lead.recebidoEm} · ${ambiente}`);
+  console.log(`[orcamento] ${lead.recebidoEm} · ${lead.ambiente}`);
 
-  const texto = ['Olá! Vim pelo site e gostaria de um orçamento.', `Nome: ${nome}`, `Ambiente: ${ambiente}`];
-  if (mensagem) texto.push(`Detalhes: ${mensagem}`);
-  return json(res, 201, { ok: true, id: lead.id, whatsapp: `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(texto.join('\n'))}` });
+  return json(res, 201, { ok: true, id: lead.id, whatsapp: r.whatsapp });
 }
 
 async function listarLeads(req, res) {
