@@ -430,7 +430,13 @@ html.lenis { scroll-behavior: auto; }
   .intro__text { padding-left: 0; border-left: 0; }
   .nap { grid-template-columns: 1fr; }
   .nap__item + .nap__item { border-left: 0; border-top: 1px solid var(--line); }
-  .hero { margin: 8px; height: min(86svh, 720px); }
+  .hero { margin: 8px; height: min(86svh, 720px); align-items: start; }
+  /* no celular o letreiro fica no terço de cima e menor, deixando o vídeo aparecer */
+  .hero__content { padding-top: clamp(96px, 17svh, 150px); }
+  .hero__wordmark { font-size: 13.5vw; }
+  /* na hero o letreiro animado já mostra o nome; o nome pequeno do menu só volta ao rolar */
+  .nav__brand { transition: opacity 300ms ease, visibility 300ms; }
+  .nav:not(.is-stuck) .nav__brand { opacity: 0; visibility: hidden; }
 }
 @media (max-width: 640px) {
   .carousel { --slide-w: 70vw; }

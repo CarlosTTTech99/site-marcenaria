@@ -2,8 +2,9 @@
  * Vídeo de fundo da hero.
  *
  * A foto continua sendo o que carrega primeiro. Depois que a página termina de carregar, o vídeo
- * entra por cima dela com um esmaecimento e fica em loop contínuo: tela em pé (celular) recebe o
- * vídeo vertical, tela deitada recebe o horizontal. Os dois arquivos vão e voltam, sem corte.
+ * entra por cima dela com um esmaecimento: tela em pé (celular) recebe o vídeo vertical, que toca
+ * uma vez e para na cozinha iluminada; tela deitada recebe o horizontal, em loop contínuo (o arquivo
+ * vai e volta, sem corte).
  *
  * Não carrega para quem pede menos movimento no sistema nem para quem ativou economia de dados.
  * Para pré-visualizar mesmo assim, abra a página com ?animacao=on.
@@ -23,7 +24,7 @@
     video.className = 'hero__video';
     video.muted = true;
     video.playsInline = true;
-    video.loop = true;
+    video.loop = !emPe;
     video.autoplay = true; /* começa mesmo se o observador de visibilidade demorar a avisar */
     video.preload = 'auto';
     video.disablePictureInPicture = true;
@@ -37,7 +38,8 @@
     new IntersectionObserver((entradas) => {
       const naTela = entradas[entradas.length - 1].isIntersecting;
       if (!naTela) { video.pause(); return; }
-      video.play().catch(() => { /* autoplay bloqueado: fica a foto */ });
+      /* o vertical, depois de terminar, fica parado no último quadro (luzes acesas) */
+      if (!video.ended) video.play().catch(() => { /* autoplay bloqueado: fica a foto */ });
     }, { threshold: 0.1 }).observe(midia);
   };
 
