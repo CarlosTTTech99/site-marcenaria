@@ -162,7 +162,7 @@ strong { font-weight: 600; }
 }
 .hero__wordmark {
   display: block;
-  font: 400 clamp(3rem, 15.6vw, 15.5rem)/0.9 var(--display);
+  font: 400 clamp(3rem, 10vw, 10.5rem)/0.9 var(--display);
   letter-spacing: 0.02em; margin-right: -0.02em; white-space: nowrap;
   text-shadow: 0 2px 40px rgba(40, 28, 20, 0.25);
 }
@@ -172,6 +172,12 @@ strong { font-weight: 600; }
 .hero__wordmark span:nth-child(5) { --n: 4; } .hero__wordmark span:nth-child(6) { --n: 5; }
 .hero__wordmark span:nth-child(7) { --n: 6; }
 .hero__content { will-change: transform; }
+/* o letreiro fica no terço de cima da hero, deixando o vídeo aparecer */
+.hero { align-items: start; }
+.hero__content { padding-top: clamp(96px, 17svh, 170px); }
+/* na hero o letreiro animado já mostra o nome; o nome pequeno do menu só volta ao rolar */
+.nav__brand { transition: opacity 300ms ease, visibility 300ms; }
+.nav:not(.is-stuck) .nav__brand { opacity: 0; visibility: hidden; }
 /* vídeo de fundo: entra por cima da foto quando começa a tocar (hero.js) */
 .hero__video {
   position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%;
@@ -430,13 +436,8 @@ html.lenis { scroll-behavior: auto; }
   .intro__text { padding-left: 0; border-left: 0; }
   .nap { grid-template-columns: 1fr; }
   .nap__item + .nap__item { border-left: 0; border-top: 1px solid var(--line); }
-  .hero { margin: 8px; height: min(86svh, 720px); align-items: start; }
-  /* no celular o letreiro fica no terço de cima e menor, deixando o vídeo aparecer */
-  .hero__content { padding-top: clamp(96px, 17svh, 150px); }
+  .hero { margin: 8px; height: min(86svh, 720px); }
   .hero__wordmark { font-size: 13.5vw; }
-  /* na hero o letreiro animado já mostra o nome; o nome pequeno do menu só volta ao rolar */
-  .nav__brand { transition: opacity 300ms ease, visibility 300ms; }
-  .nav:not(.is-stuck) .nav__brand { opacity: 0; visibility: hidden; }
 }
 @media (max-width: 640px) {
   .carousel { --slide-w: 70vw; }
